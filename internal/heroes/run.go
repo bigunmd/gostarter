@@ -14,7 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const service string = "heroes"
+const serviceName string = "heroes"
 
 // Run runs heroes service with provided configuration.
 func Run(cfg *Config) error {
@@ -22,14 +22,24 @@ func Run(cfg *Config) error {
 	if err != nil {
 		return fmt.Errorf("cannot parse logger level: %w", err)
 	}
-	log := zerolog.New(os.Stdout).With().Timestamp().Str("service", service).Logger().Level(logLvl)
+	log := zerolog.New(os.Stdout).With().Timestamp().Str(
+		"service",
+		serviceName,
+	).Logger().Level(logLvl)
 	stdlog.SetOutput(log)
 
-	sigCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	sigCtx, stop := signal.NotifyContext(
+		context.Background(),
+		syscall.SIGTERM,
+		syscall.SIGINT,
+	)
 	defer stop()
 
+	repo := NewInMem(log.WithContext(context.Background()))
+	svc := NewService(log.WithContext(context.Background()), repo)
+
 	mux := http.NewServeMux()
-	if err := registerRoutes(mux); err != nil {
+	if err := registerRoutes(log.WithContext(context.Background()), mux, svc); err != nil {
 		return fmt.Errorf("cannot register mux routes: %w", err)
 	}
 
@@ -56,7 +66,10 @@ func Run(cfg *Config) error {
 	g.Go(func() error {
 		<-gCtx.Done()
 		log.Info().Msg("shutting down http server")
-		shtdCtx, cancel := context.WithTimeout(context.Background(), cfg.HTTP.GracefulShutdownTimeout)
+		shtdCtx, cancel := context.WithTimeout(
+			context.Background(),
+			cfg.HTTP.GracefulShutdownTimeout,
+		)
 		defer cancel()
 		if err := httpSrv.Shutdown(shtdCtx); err != nil {
 			return fmt.Errorf("cannot shutdown http server: %w", err)
