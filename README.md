@@ -41,6 +41,7 @@ files passed as argument to the executable.
 ### heroes
 
 |ENV|json/yaml|Default|Description|
+|---|---|---|---|
 |`LOGGER_LEVEL`|`logger.level`|`info`|Define logger base level|
 |`HTTP_ADDR`|`http.addr`|`:8080`|Serve http server on that address|
 |`HTTP_GRACEFUL_SHUTDOWN_TIMEOUT`|`http.gracefulShutdownTimeout`|`20s`|Timeout for active connections graceful shutdown period|
