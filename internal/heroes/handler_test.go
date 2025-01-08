@@ -46,7 +46,7 @@ func TestHandleCreateHero(t *testing.T) {
         }
         b, err := json.Marshal(h)
         require.NoError(t, err)
-        req, err := http.NewRequest(http.MethodPost, "/heroes", bytes.NewReader(b))
+        req, err := http.NewRequest(http.MethodPost, "/v1/heroes", bytes.NewReader(b))
         require.NoError(t, err)
 
         return args{
@@ -66,7 +66,7 @@ func TestHandleCreateHero(t *testing.T) {
         }
         b, err := json.Marshal(h)
         require.NoError(t, err)
-        req, err := http.NewRequest(http.MethodPost, "/heroes", bytes.NewReader(b))
+        req, err := http.NewRequest(http.MethodPost, "/v1/heroes", bytes.NewReader(b))
         require.NoError(t, err)
 
         return args{
