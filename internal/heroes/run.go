@@ -56,10 +56,20 @@ func Run(cfg *Config) error {
 	g, gCtx := errgroup.WithContext(sigCtx)
 
 	g.Go(func() error {
-		log.Info().Msgf("listening for http on %s", httpSrv.Addr)
-		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			return fmt.Errorf("cannot listen and serve http server: %w", err)
-		}
+    if cfg.HTTP.TLS.CertFile != "" && cfg.HTTP.TLS.KeyFile != "" {
+		  log.Info().Msgf("listening for https on %s", httpSrv.Addr)
+      if err := httpSrv.ListenAndServeTLS(
+      	cfg.HTTP.TLS.CertFile,
+      	cfg.HTTP.TLS.KeyFile,
+      ); err != nil && err != http.ErrServerClosed {
+        return fmt.Errorf("cannot listen and serve tls http server: %w", err)
+      }
+    } else {
+      log.Info().Msgf("listening for http on %s", httpSrv.Addr)
+      if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+        return fmt.Errorf("cannot listen and serve http server: %w", err)
+      }
+    }
 		return nil
 	})
 

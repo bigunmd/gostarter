@@ -8,6 +8,14 @@ type LoggerConfig struct {
 	Level string `json:"level" yaml:"level" env:"LEVEL" env-default:"info"`
 }
 
+// TLSConfig represents TLS configuration parameters.
+type TLSConfig struct {
+	// CertFile defines path to certificate file.
+	CertFile string `json:"certFile" yaml:"certFile" env:"CERT_FILE"`
+	// KeyFile defines path to key file.
+	KeyFile string `json:"keyFile" yaml:"keyFile" env:"KEY_FILE"`
+}
+
 // HTTPConfig represents http server configuration parameters.
 type HTTPConfig struct {
 	// Addr defines 'net/http' http server parameters.
@@ -24,6 +32,8 @@ type HTTPConfig struct {
 	IdleTimeout time.Duration `json:"idleTimeout" yaml:"idleTimeout" env:"IDLE_TIMEOUT" env-default:"20s"`
 	// MaxHeaderBytes defines max header bytes for 'net/http' http server.
 	MaxHeaderBytes int `json:"maxHeaderBytes" yaml:"maxHeaderBytes" env:"MAX_HEADER_BYTES"`
+	// TLS defines TLS parameters.
+	TLS TLSConfig `json:"tls" yaml:"tls" env-prefix:"TLS_"`
 }
 
 // Config represents configuration parameters for heroes

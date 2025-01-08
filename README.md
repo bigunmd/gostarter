@@ -56,3 +56,5 @@ files passed as argument to the executable.
 |`HTTP_WRITE_TIMEOUT`|`http.writeTimeout`|`20s`|Timeout for incoming connection write state|
 |`HTTP_IDLE_TIMEOUT`|`http.idleTimeout`|`20s`|Timeout for incoming connection idle state|
 |`HTTP_MAX_HEADER_BYTES`|`http.maxHeaderBytes`|`0`|Maximum header bytes size for incoming connections|
+|`HTTP_TLS_CERT_FILE`|`http.tls.certFile`|`""`|Path to certificate file|
+|`HTTP_TLS_KEY_FILE`|`http.tls.keyFile`|`""`|Path to key file|
