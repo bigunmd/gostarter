@@ -27,7 +27,13 @@ go run ./cmd/heroes -c config.yaml
 
 ## Develop
 
-TBD
+Generate OAS 3.1
+
+```bash
+# swaggo v2 is required
+# go install github.com/swaggo/swag/v2/cmd/swag@latest
+go generate
+```
 
 ## Test
 

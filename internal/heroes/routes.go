@@ -31,7 +31,7 @@ func registerRoutes(
 	c = c.Append(hlog.RefererHandler("referer"))
 	c = c.Append(hlog.RequestIDHandler("req_id", "Request-Id"))
 
-	mux.Handle("POST /heroes", c.Then(HandleCreateHero(svc)))
+	mux.Handle("POST /v1/heroes", c.Then(HandleCreateHero(svc)))
 
 	return nil
 }

@@ -33,6 +33,19 @@ type Service interface {
 }
 
 // HandleCreateHero returns handler func that controls [Hero] creation.
+//
+//	@id				CreateHero
+//	@description	Creates new user's hero.
+//	@tags			heroes
+//	@accept			json
+//	@produce		plain
+//	@param			hero	body	Hero	true	"Hero"
+//	@success		201
+//	@header			201	{string}	Location	"Location header with path to a new resource."
+//	@failure		400
+//	@failure		409
+//	@failure		500
+//	@router			/v1/heroes [post]
 func HandleCreateHero(svc Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &CreateHeroRequest{}
@@ -54,7 +67,6 @@ func HandleCreateHero(svc Service) http.HandlerFunc {
 		}
 		log.Debug().Msg("created hero")
 
-		w.Header().Set(string(contentType), "application/json")
     w.Header().Set(string(location), r.URL.Path + "/" + resp.Name)
 		w.WriteHeader(http.StatusCreated)
 	}

@@ -15,7 +15,7 @@ func setupMux(ctx context.Context) *http.ServeMux {
   svc := setupTestService(ctx)  
 
   mux := http.NewServeMux()
-  mux.Handle("POST /heroes", HandleCreateHero(svc))
+  mux.Handle("POST /v1/heroes", HandleCreateHero(svc))
 
   return mux
 }
@@ -55,7 +55,7 @@ func TestHandleCreateHero(t *testing.T) {
       },
       expectedCode: http.StatusCreated,
       expectedHeaders: map[string]string{
-        "Location": "/heroes/test",
+        "Location": "/v1/heroes/test",
       },
     },
     {

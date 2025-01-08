@@ -1,0 +1,64 @@
+components:
+  schemas:
+    heroes.Hero:
+      properties:
+        createdAt:
+          description: CreatedAt defines creation date.
+          type: string
+        id:
+          description: ID defines unique identifier.
+          type: string
+        name:
+          description: Name defines unique (for owner) hero name.
+          type: string
+        owner:
+          description: Owner defines hero owner.
+          type: string
+        updatedAt:
+          description: UpdatedAt defines last update date.
+          type: string
+      type: object
+externalDocs:
+  description: Github source repository.
+  url: https://github.com/bigunmd/gostarter
+info:
+  title: Heroes API
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /v1/heroes:
+    post:
+      description: Creates new user's hero.
+      operationId: CreateHero
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/heroes.Hero'
+        description: Hero
+        required: true
+      responses:
+        "201":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Created
+          headers:
+            Location:
+              description: Location header with path to a new resource.
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+        "409":
+          description: Conflict
+        "500":
+          description: Internal Server Error
+      tags:
+      - heroes
+servers:
+- description: Local development server.
+  url: http://localhost:8080
+- description: Local development server.
+  url: http://127.0.0.1:8080
