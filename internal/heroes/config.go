@@ -1,6 +1,10 @@
 package heroes
 
-import "time"
+import (
+	"time"
+
+	"github.com/bigunmd/gostarter/pkg/util/postgres"
+)
 
 // LoggerConfig represents logger configuration parameters.
 type LoggerConfig struct {
@@ -43,4 +47,6 @@ type Config struct {
 	Logger LoggerConfig `json:"logger" yaml:"logger" env-prefix:"LOGGER_"`
 	// HTTP defines http server parameters.
 	HTTP HTTPConfig `json:"http" yaml:"http" env-prefix:"HTTP_"`
+	// Postgres defines Postgres database connection parameters.
+	Postgres postgres.PostgresConfig `json:"postgres" yaml:"postgres" env-prefix:"POSTGRES_"`
 }
