@@ -10,6 +10,8 @@ import (
 
 	stdlog "log"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/errgroup"
 )
@@ -35,7 +37,18 @@ func Run(cfg *Config) error {
 	)
 	defer stop()
 
-	repo := NewInMem(log.WithContext(context.Background()))
+	if err := configureDB(log.WithContext(context.Background()), cfg); err != nil {
+		return fmt.Errorf("cannot configure database: %w", err)
+	}
+	pool, err := pgxpool.New(
+		context.Background(),
+		cfg.Postgres.PoolString("search_path="+cfg.Postgres.Schema),
+	)
+	if err != nil {
+		return fmt.Errorf("cannot create pgx pool: %w", err)
+	}
+	defer pool.Close()
+	repo := NewPg(log.WithContext(context.Background()), pool)
 	svc := NewService(log.WithContext(context.Background()), repo)
 
 	mux := http.NewServeMux()
@@ -56,20 +69,28 @@ func Run(cfg *Config) error {
 	g, gCtx := errgroup.WithContext(sigCtx)
 
 	g.Go(func() error {
-    if cfg.HTTP.TLS.CertFile != "" && cfg.HTTP.TLS.KeyFile != "" {
-		  log.Info().Msgf("listening for https on %s", httpSrv.Addr)
-      if err := httpSrv.ListenAndServeTLS(
-      	cfg.HTTP.TLS.CertFile,
-      	cfg.HTTP.TLS.KeyFile,
-      ); err != nil && err != http.ErrServerClosed {
-        return fmt.Errorf("cannot listen and serve tls http server: %w", err)
-      }
-    } else {
-      log.Info().Msgf("listening for http on %s", httpSrv.Addr)
-      if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-        return fmt.Errorf("cannot listen and serve http server: %w", err)
-      }
-    }
+		<-gCtx.Done()
+		log.Info().Msg("closing postgres connection pool")
+		pool.Close()
+		log.Info().Msg("closed postgres connection pool")
+		return nil
+	})
+
+	g.Go(func() error {
+		if cfg.HTTP.TLS.CertFile != "" && cfg.HTTP.TLS.KeyFile != "" {
+			log.Info().Msgf("listening for https on %s", httpSrv.Addr)
+			if err := httpSrv.ListenAndServeTLS(
+				cfg.HTTP.TLS.CertFile,
+				cfg.HTTP.TLS.KeyFile,
+			); err != nil && err != http.ErrServerClosed {
+				return fmt.Errorf("cannot listen and serve tls http server: %w", err)
+			}
+		} else {
+			log.Info().Msgf("listening for http on %s", httpSrv.Addr)
+			if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				return fmt.Errorf("cannot listen and serve http server: %w", err)
+			}
+		}
 		return nil
 	})
 
@@ -90,6 +111,21 @@ func Run(cfg *Config) error {
 
 	if err := g.Wait(); err != nil {
 		return fmt.Errorf("cannot wait error group: %w", err)
+	}
+
+	return nil
+}
+
+func configureDB(ctx context.Context, cfg *Config) error {
+	conn, err := pgx.Connect(ctx, cfg.Postgres.String())
+	if err != nil {
+		return fmt.Errorf("cannot connect to postgres: %w", err)
+	}
+	if err := createSchema(ctx, conn, cfg.Postgres.Schema); err != nil {
+		return fmt.Errorf("cannot create schema: %w", err)
+	}
+	if err := migrateUp(ctx, cfg.Postgres.URL("search_path="+cfg.Postgres.Schema)); err != nil {
+		return fmt.Errorf("cannot migrate up: %w", err)
 	}
 
 	return nil
