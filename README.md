@@ -21,10 +21,10 @@ Sample of my code lies here.
 - `cmd` - executable services
 - `internal` - internal implementations of domain models,
   repositories and use cases with exportable handlers
-- gen - auto generated code
-- docs - auto generated OAS specification
-- docker - docker and docker compose related files
-- pkg - exportable code
+- `gen` - auto generated code
+- `docs` - auto generated OAS specification
+- `docker` - docker and docker compose related files
+- `pkg` - exportable code
 
 ## Run
 
