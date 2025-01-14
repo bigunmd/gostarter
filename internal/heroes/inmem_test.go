@@ -1,3 +1,5 @@
+//go:build unit
+
 package heroes
 
 import (
@@ -5,18 +7,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bigunmd/gostarter/pkg/util/tests"
 	"github.com/jaswdr/faker/v2"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestLogger(t *testing.T) zerolog.Logger {
-	return zerolog.New(zerolog.NewTestWriter(t))
-}
-
 func TestInMemStore(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
-	ctx = setupTestLogger(t).WithContext(ctx)
+	ctx = tests.SetupTestLogger(t).WithContext(ctx)
 
 	repo := NewInMem(ctx)
 
