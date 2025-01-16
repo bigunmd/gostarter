@@ -18,12 +18,13 @@ func setupTestMux(ctx context.Context) *http.ServeMux {
 	svc := setupTestService(ctx)
 
 	mux := http.NewServeMux()
+	mux.Handle("GET /healthz", HandleHealthz())
 	mux.Handle("POST /v1/heroes", HandleCreateHero(svc))
 
 	return mux
 }
 
-func TestHandleCreateHero(t *testing.T) {
+func TestHandler(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
@@ -43,6 +44,18 @@ func TestHandleCreateHero(t *testing.T) {
 		expectedBodyErr string
 		expectedHeaders map[string]string
 	}{
+		{
+			name: "must return http.StatusOK, empty body",
+			args: func(t *testing.T) args {
+				req, err := http.NewRequest(http.MethodGet, "/healthz", nil)
+				require.NoError(t, err)
+
+				return args{
+					req: req,
+				}
+			},
+			expectedCode: http.StatusOK,
+		},
 		{
 			name: "must return http.StatusCreated, empty body and Location header with new resource",
 			args: func(t *testing.T) args {

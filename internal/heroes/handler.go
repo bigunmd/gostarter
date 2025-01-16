@@ -11,8 +11,25 @@ import (
 
 type key string
 
-const contentType key = "Content-Type"
-const location key = "Location"
+const (
+	contentType key = "Content-Type"
+	location    key = "Location"
+)
+
+// HandleHealthz returns handler func that reports service availability status.
+//
+//	@id				GetHealthz
+//	@description	Returns service health status.
+//	@accept			json
+//	@produce		plain
+//	@success		200
+//	@failure		500
+//	@router			/healthz [get]
+func HandleHealthz() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+}
 
 // CreateHeroRequest represents request for [Hero] creation.
 type CreateHeroRequest struct {
@@ -67,7 +84,7 @@ func HandleCreateHero(svc Service) http.HandlerFunc {
 		}
 		log.Debug().Msg("created hero")
 
-    w.Header().Set(string(location), r.URL.Path + "/" + resp.Name)
+		w.Header().Set(string(location), r.URL.Path+"/"+resp.Name)
 		w.WriteHeader(http.StatusCreated)
 	}
 }
